@@ -1,7 +1,38 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #define ESTUDIANTES 5
 #define ASIGNATURAS 3
+
+float leer_calificacion(int estudiante, int asignatura) {
+    float nota;
+    int resultado;
+    char c;
+    int valido = 0;
+
+    while (!valido) { 
+        printf("Ingrese calificación del estudiante %d en asignatura %d (0-10): ",
+               estudiante + 1, asignatura + 1);
+
+        resultado = scanf("%f", &nota);
+
+        while ((c = getchar()) != '\n' && c != EOF);
+
+        if (resultado != 1) {
+            printf("Error: Debe ingresar un número correcto.\n");
+            continue;  
+        }
+
+        if (nota < 0 || nota > 10) {
+            printf("Error: La calificación debe ser entre 0 y 10.\n");
+            continue;
+        }
+
+        valido = 1;
+    }
+
+    return nota;
+}
 
 int main() {
     float calificaciones[ESTUDIANTES][ASIGNATURAS];
@@ -12,18 +43,19 @@ int main() {
     float max_estudiante[ESTUDIANTES], min_estudiante[ESTUDIANTES];
     float max_asignatura[ASIGNATURAS], min_asignatura[ASIGNATURAS];
 
+    printf("=== INGRESO DE CALIFICACIONES ===\n");
+
     for (int i = 0; i < ESTUDIANTES; i++) {
         for (int j = 0; j < ASIGNATURAS; j++) {
-            do {
-                printf("Ingrese calificación del estudiante %d en asignatura %d (0-10): ", i + 1, j + 1);
-                scanf("%f", &calificaciones[i][j]);
-            } while (calificaciones[i][j] < 0 || calificaciones[i][j] > 10);
+            calificaciones[i][j] = leer_calificacion(i, j);
         }
     }
+
     for (int i = 0; i < ESTUDIANTES; i++) {
         suma_estudiante = 0;
         max_estudiante[i] = calificaciones[i][0];
         min_estudiante[i] = calificaciones[i][0];
+
         for (int j = 0; j < ASIGNATURAS; j++) {
             suma_estudiante += calificaciones[i][j];
             if (calificaciones[i][j] > max_estudiante[i]) max_estudiante[i] = calificaciones[i][j];
@@ -31,10 +63,12 @@ int main() {
         }
         promedio_estudiante[i] = suma_estudiante / ASIGNATURAS;
     }
+
     for (int j = 0; j < ASIGNATURAS; j++) {
         suma_asignatura = 0;
         max_asignatura[j] = calificaciones[0][j];
         min_asignatura[j] = calificaciones[0][j];
+
         for (int i = 0; i < ESTUDIANTES; i++) {
             suma_asignatura += calificaciones[i][j];
             if (calificaciones[i][j] > max_asignatura[j]) max_asignatura[j] = calificaciones[i][j];
@@ -44,15 +78,21 @@ int main() {
         }
         promedio_asignatura[j] = suma_asignatura / ESTUDIANTES;
     }
+
+    printf("\n=== RESULTADOS POR ESTUDIANTE ===\n");
     for (int i = 0; i < ESTUDIANTES; i++) {
-        printf("\nEstudiante %d - Promedio: %.2f, Máxima: %.2f, Mínima: %.2f\n",
+        printf("Estudiante %d -> Promedio: %.2f | Máxima: %.2f | Mínima: %.2f\n",
                i + 1, promedio_estudiante[i], max_estudiante[i], min_estudiante[i]);
     }
 
+    printf("\n=== RESULTADOS POR ASIGNATURA ===\n");
     for (int j = 0; j < ASIGNATURAS; j++) {
-        printf("Asignatura %d - Promedio: %.2f, Máxima: %.2f, Mínima: %.2f, Aprobados: %d, Reprobados: %d\n",
-               j + 1, promedio_asignatura[j], max_asignatura[j], min_asignatura[j], aprobados[j], reprobados[j]);
+        printf("Asignatura %d -> Promedio: %.2f | Máxima: %.2f | Mínima: %.2f | Aprobados: %d | Reprobados: %d\n",
+               j + 1, promedio_asignatura[j], max_asignatura[j], min_asignatura[j],
+               aprobados[j], reprobados[j]);
     }
+
+    printf("\nCálculos completados correctamente.\n");
 
     return 0;
 }
