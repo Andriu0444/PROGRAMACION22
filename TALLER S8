@@ -1,0 +1,265 @@
+TALLER S8 CODIGO 1//
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_PRODUCTOS 5
+#define MAX_NOMBRE 30
+
+void limpiarBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {
+        /* vaciar el buffer */
+    }
+}
+
+void quitarSaltoDeLinea(char *cadena) {
+    size_t len = strlen(cadena);
+    if (len > 0 && cadena[len - 1] == '\n') {
+        cadena[len - 1] = '\0';
+    }
+}
+
+int buscarProducto(char nombres[][MAX_NOMBRE], int numProductos, const char *buscado) {
+    int i;
+    for (i = 0; i < numProductos; i++) {
+        if (strcmp(nombres[i], buscado) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void calcularTotales(int *cantidades,
+                     float *tiemposUnidad,
+                     float *recursosUnidad,
+                     int numProductos,
+                     float *totalTiempo,
+                     float *totalRecursos) {
+    int i;
+    *totalTiempo = 0.0f;
+    *totalRecursos = 0.0f;
+
+    for (i = 0; i < numProductos; i++) {
+        *totalTiempo += (*(cantidades + i)) * (*(tiemposUnidad + i));
+        *totalRecursos += (*(cantidades + i)) * (*(recursosUnidad + i));
+    }
+}
+
+void mostrarProductos(char nombres[][MAX_NOMBRE],
+                      int *cantidades,
+                      float *tiemposUnidad,
+                      float *recursosUnidad,
+                      int numProductos) {
+    int i;
+    if (numProductos == 0) {
+        printf("\nNo hay productos registrados.\n");
+        return;
+    }
+
+    printf("\n=== LISTA DE PRODUCTOS ===\n");
+    for (i = 0; i < numProductos; i++) {
+        printf("Producto %d:\n", i + 1);
+        printf("  Nombre: %s\n", nombres[i]);
+        printf("  Cantidad demandada: %d\n", cantidades[i]);
+        printf("  Tiempo por unidad: %.2f\n", tiemposUnidad[i]);
+        printf("  Recursos por unidad: %.2f\n\n", recursosUnidad[i]);
+    }
+}
+
+int main() {
+    char nombres[MAX_PRODUCTOS][MAX_NOMBRE];
+    int cantidades[MAX_PRODUCTOS];
+    float tiemposUnidad[MAX_PRODUCTOS];
+    float recursosUnidad[MAX_PRODUCTOS];
+    int numProductos = 0;
+
+    float tiempoDisponible = 0.0f;
+    float recursosDisponibles = 0.0f;
+
+    int opcion;
+
+    printf("=== OPTIMIZACION DE PRODUCCION (VERSION 1) ===\n\n");
+
+    printf("Ingrese el tiempo total de produccion disponible: ");
+    scanf("%f", &tiempoDisponible);
+    limpiarBuffer();
+
+    printf("Ingrese la cantidad total de recursos disponibles: ");
+    scanf("%f", &recursosDisponibles);
+    limpiarBuffer();
+
+    do {
+        printf("\n===== MENU =====\n");
+        printf("1. Ingresar nuevo producto\n");
+        printf("2. Editar producto\n");
+        printf("3. Eliminar producto\n");
+        printf("4. Mostrar productos y evaluar produccion\n");
+        printf("5. Salir\n");
+        printf("Seleccione una opcion: ");
+        scanf("%d", &opcion);
+        limpiarBuffer();
+
+        if (opcion == 1) {
+            if (numProductos >= MAX_PRODUCTOS) {
+                printf("\nNo se pueden ingresar mas de %d productos.\n", MAX_PRODUCTOS);
+            } else {
+                printf("\n=== INGRESO DE PRODUCTO ===\n");
+                printf("Nombre del producto: ");
+                fgets(nombres[numProductos], MAX_NOMBRE, stdin);
+                quitarSaltoDeLinea(nombres[numProductos]);
+
+                printf("Cantidad demandada: ");
+                scanf("%d", &cantidades[numProductos]);
+                limpiarBuffer();
+
+                printf("Tiempo de fabricacion por unidad: ");
+                scanf("%f", &tiemposUnidad[numProductos]);
+                limpiarBuffer();
+
+                printf("Recursos necesarios por unidad: ");
+                scanf("%f", &recursosUnidad[numProductos]);
+                limpiarBuffer();
+
+                numProductos++;
+                printf("\nProducto ingresado correctamente.\n");
+            }
+        } else if (opcion == 2) {
+            char nombreBusqueda[MAX_NOMBRE];
+            int indice, subOpcion;
+
+            if (numProductos == 0) {
+                printf("\nNo hay productos para editar.\n");
+            } else {
+                printf("\n=== EDICION DE PRODUCTO ===\n");
+                printf("Ingrese el nombre del producto a editar: ");
+                fgets(nombreBusqueda, MAX_NOMBRE, stdin);
+                quitarSaltoDeLinea(nombreBusqueda);
+
+                indice = buscarProducto(nombres, numProductos, nombreBusqueda);
+                if (indice == -1) {
+                    printf("\nProducto no encontrado.\n");
+                } else {
+                    printf("\nProducto encontrado:\n");
+                    printf("Nombre actual: %s\n", nombres[indice]);
+                    printf("Cantidad actual: %d\n", cantidades[indice]);
+                    printf("Tiempo por unidad actual: %.2f\n", tiemposUnidad[indice]);
+                    printf("Recursos por unidad actual: %.2f\n", recursosUnidad[indice]);
+
+                    printf("\nQue desea editar?\n");
+                    printf("1. Nombre\n");
+                    printf("2. Cantidad\n");
+                    printf("3. Tiempo por unidad\n");
+                    printf("4. Recursos por unidad\n");
+                    printf("5. Editar todo\n");
+                    printf("Seleccione una opcion: ");
+                    scanf("%d", &subOpcion);
+                    limpiarBuffer();
+
+                    switch (subOpcion) {
+                        case 1:
+                            printf("Nuevo nombre: ");
+                            fgets(nombres[indice], MAX_NOMBRE, stdin);
+                            quitarSaltoDeLinea(nombres[indice]);
+                            break;
+                        case 2:
+                            printf("Nueva cantidad demandada: ");
+                            scanf("%d", &cantidades[indice]);
+                            limpiarBuffer();
+                            break;
+                        case 3:
+                            printf("Nuevo tiempo por unidad: ");
+                            scanf("%f", &tiemposUnidad[indice]);
+                            limpiarBuffer();
+                            break;
+                        case 4:
+                            printf("Nuevos recursos por unidad: ");
+                            scanf("%f", &recursosUnidad[indice]);
+                            limpiarBuffer();
+                            break;
+                        case 5:
+                            printf("Nuevo nombre: ");
+                            fgets(nombres[indice], MAX_NOMBRE, stdin);
+                            quitarSaltoDeLinea(nombres[indice]);
+
+                            printf("Nueva cantidad demandada: ");
+                            scanf("%d", &cantidades[indice]);
+                            limpiarBuffer();
+
+                            printf("Nuevo tiempo por unidad: ");
+                            scanf("%f", &tiemposUnidad[indice]);
+                            limpiarBuffer();
+
+                            printf("Nuevos recursos por unidad: ");
+                            scanf("%f", &recursosUnidad[indice]);
+                            limpiarBuffer();
+                            break;
+                        default:
+                            printf("\nOpcion no valida.\n");
+                            break;
+                    }
+
+                    printf("\nDatos del producto actualizados.\n");
+                }
+            }
+        } else if (opcion == 3) {
+            char nombreBusqueda[MAX_NOMBRE];
+            int indice, i;
+
+            if (numProductos == 0) {
+                printf("\nNo hay productos para eliminar.\n");
+            } else {
+                printf("\n=== ELIMINACION DE PRODUCTO ===\n");
+                printf("Ingrese el nombre del producto a eliminar: ");
+                fgets(nombreBusqueda, MAX_NOMBRE, stdin);
+                quitarSaltoDeLinea(nombreBusqueda);
+
+                indice = buscarProducto(nombres, numProductos, nombreBusqueda);
+                if (indice == -1) {
+                    printf("\nProducto no encontrado.\n");
+                } else {
+                    for (i = indice; i < numProductos - 1; i++) {
+                        strcpy(nombres[i], nombres[i + 1]);
+                        cantidades[i] = cantidades[i + 1];
+                        tiemposUnidad[i] = tiemposUnidad[i + 1];
+                        recursosUnidad[i] = recursosUnidad[i + 1];
+                    }
+                    numProductos--;
+                    printf("\nProducto eliminado correctamente.\n");
+                }
+            }
+        } else if (opcion == 4) {
+            float totalTiempo, totalRecursos;
+
+            mostrarProductos(nombres, cantidades, tiemposUnidad, recursosUnidad, numProductos);
+            if (numProductos > 0) {
+                calcularTotales(cantidades, tiemposUnidad, recursosUnidad,
+                                numProductos, &totalTiempo, &totalRecursos);
+
+                printf("=== RESUMEN DE PRODUCCION ===\n");
+                printf("Tiempo total requerido: %.2f\n", totalTiempo);
+                printf("Recursos totales requeridos: %.2f\n", totalRecursos);
+                printf("Tiempo disponible: %.2f\n", tiempoDisponible);
+                printf("Recursos disponibles: %.2f\n", recursosDisponibles);
+
+                if (totalTiempo <= tiempoDisponible && totalRecursos <= recursosDisponibles) {
+                    printf("\nLa fabrica PUEDE cumplir con la demanda.\n");
+                } else {
+                    printf("\nLa fabrica NO PUEDE cumplir con la demanda.\n");
+                    if (totalTiempo > tiempoDisponible) {
+                        printf("- Falta tiempo de produccion.\n");
+                    }
+                    if (totalRecursos > recursosDisponibles) {
+                        printf("- Faltan recursos.\n");
+                    }
+                }
+            }
+        } else if (opcion != 5) {
+            printf("\nOpcion no valida.\n");
+        }
+
+    } while (opcion != 5);
+
+    printf("\nSaliendo del programa...\n");
+    return 0;
+
+}
